@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Letter Writing Workshop</title>
+<style>
+:root{
+  --bg:#f5f8f9; --card:#ffffff; --ink:#1d2b2f; --muted:#5b6b70; --line:#d5e0e3;
+  --brand:#0e7c86; --brand-ink:#ffffff; --brand-soft:#dff1f3;
+  --ok:#17794a; --ok-bg:#e3f5ea; --bad:#b4261c; --bad-bg:#fdeae8;
+  --warn:#8a5a00; --warn-bg:#fff4d6; --focus:#f2a900;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#10191b; --card:#172326; --ink:#e6f0f2; --muted:#9db0b5; --line:#2a3d41;
+    --brand:#3fb8c3; --brand-ink:#08181a; --brand-soft:#173338;
+    --ok:#6fd49c; --ok-bg:#15301f; --bad:#ff8f84; --bad-bg:#3a1b18;
+    --warn:#f5c562; --warn-bg:#352b10;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--brand);color:var(--brand-ink);padding:18px 16px 14px}
+header h1{margin:0;font-size:1.5rem;font-weight:650}
+header p{margin:4px 0 0;opacity:.9;font-size:.95rem}
+.wrap{max-width:900px;margin:0 auto}
+nav{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
+[role=tablist]{display:flex;gap:4px;overflow-x:auto;padding:8px 12px;max-width:900px;margin:0 auto;scrollbar-width:thin}
+[role=tab]{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:9px 14px;border-radius:999px;font:inherit;font-size:.92rem;cursor:pointer;white-space:nowrap}
+[role=tab][aria-selected=true]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);font-weight:600}
+[role=tab] .badge{margin-left:6px;font-weight:700}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+main{max-width:900px;margin:0 auto;padding:16px}
+[role=tabpanel][hidden]{display:none}
+h2{margin:.2rem 0 .4rem;font-size:1.35rem}
+h3{margin:1.2rem 0 .4rem;font-size:1.05rem}
+.lead{color:var(--muted);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.task{background:var(--brand-soft);border-radius:10px;padding:10px 14px;margin:0 0 14px}
+.task strong{display:block}
+button{font:inherit}
+.btn{background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:600}
+.btn.alt{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+.btn:disabled{opacity:.5;cursor:default}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.counter{color:var(--muted);font-size:.92rem;margin-left:auto}
+.letter{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px 20px;box-shadow:0 1px 0 var(--line)}
+.letter>*+*{margin-top:12px}
+.fb{font-size:.92rem;margin-top:6px;min-height:0}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.fb.ok::before{content:""}
+select,input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:220px;resize:vertical}
+/* parts */
+.row{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start;padding:12px 0;border-top:1px dashed var(--line)}
+.row:first-child{border-top:0}
+.row .para{margin:0}
+@media (max-width:700px){.row{grid-template-columns:1fr}}
+/* gaps */
+.gap{border:2px dashed var(--line);border-radius:10px;padding:10px;background:var(--bg)}
+.gap .prompt{font-size:.85rem;color:var(--muted);margin:0 0 6px}
+.choices{display:grid;gap:6px}
+.choice{text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer}
+.choice:hover:not(:disabled){border-color:var(--brand)}
+.choice.wrong{background:var(--bad-bg);border-color:var(--bad);color:var(--bad);text-decoration:line-through;cursor:default}
+.gap.solved{border:2px solid var(--ok);background:var(--ok-bg)}
+.gap.solved .st{margin:0;font-weight:500}
+.gap.solved .why{margin:4px 0 0;font-size:.88rem;color:var(--ok)}
+.seg{display:inline-flex;border:1px solid var(--brand);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;color:var(--brand);border:0;padding:8px 14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink);font-weight:600}
+/* fix */
+.sent{display:block;width:100%;text-align:left;background:transparent;color:var(--ink);border:1px solid transparent;border-radius:8px;padding:8px 10px;cursor:pointer;font:inherit}
+.sent:hover:not(:disabled){background:var(--brand-soft)}
+.sent.fixed{background:var(--ok-bg);border-color:var(--ok);cursor:default}
+.sent.fine{background:var(--brand-soft);border-color:var(--brand)}
+.panel{margin:6px 0 4px 14px;padding:10px;border-left:4px solid var(--brand);background:var(--bg);border-radius:0 8px 8px 0}
+/* sign cards */
+.sc h4{margin:0 0 8px;font-size:1rem}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:620px){.cols{grid-template-columns:1fr}}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin:0 0 6px;cursor:pointer}
+.opt[aria-pressed=true]{border-color:var(--brand);background:var(--brand-soft);font-weight:600}
+.cols .lbl{font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:0 0 6px}
+.sc.done{border-color:var(--ok);background:var(--ok-bg)}
+/* build */
+.chunks{display:flex;flex-wrap:wrap;gap:8px;min-height:46px;padding:8px;border:2px dashed var(--line);border-radius:10px}
+.chunk{background:var(--card);color:var(--ink);border:1px solid var(--brand);border-radius:8px;padding:8px 12px;cursor:pointer;text-align:left}
+.ordered{counter-reset:n;display:grid;gap:8px;padding:8px;border:2px solid var(--brand);border-radius:10px;min-height:46px}
+.ordered .chunk::before{counter-increment:n;content:counter(n)". ";font-weight:700;color:var(--brand)}
+.scan li{margin:4px 0}
+.scan .ok{color:var(--ok)} .scan .bad{color:var(--bad)} .scan .warn{color:var(--warn)}
+.check label{display:flex;gap:10px;align-items:flex-start;margin:6px 0;cursor:pointer}
+.check input{margin-top:5px;width:18px;height:18px}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--brand-soft)}
+.prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden;min-width:90px}
+.prog>span{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;font-size:.92rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>Letter Writing Workshop</h1><p>Six short activities on writing a formal letter: structure, register, politeness and checking.</p></div></header>
+<nav><div role="tablist" id="tabs" aria-label="Activities"></div></nav>
+<main id="main"></main>
+<div id="live" class="sr" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   TEACHER-EDITABLE CONTENT
+   Change the text below to make new letters. Everything else in the file
+   reads from DATA, so you shouldn't need to touch the code.
+   For every "options" list the FIRST item is the correct one; the page
+   shuffles them for students. Each option is [text, explanation].
+   ===================================================================== */
+const DATA = {
+
+  /* The seven writing tips (based on the structure of a formal letter) */
+  tips: [
+    {id:1, label:"If you don’t know the person’s name, use ‘Sir/Madam’."},
+    {id:2, label:"Introduce yourself and say why you are writing."},
+    {id:3, label:"Begin with something positive."},
+    {id:4, label:"Identify the first problem and say what you would do about it."},
+    {id:5, label:"Take the other problems in turn: a new paragraph and a solution for each."},
+    {id:6, label:"Ask a direct question politely by using the passive."},
+    {id:7, label:"Finish with a polite closing phrase."}
+  ],
+
+  /* Activity 1: match each paragraph to the tip it follows */
+  parts: {
+    letter: [
+      {tip:1, text:"Dear Sir/Madam,", why:"You don’t know the name of the person, so you use ‘Sir/Madam’."},
+      {tip:2, text:"We are students in Year 8 at Riverside School. In our Geography class, we are doing a project on our town, and we have been asked to suggest ways of improving it.", why:"The writers say who they are and why they are writing."},
+      {tip:3, text:"Our town has a beautiful river walk and a lively market every Saturday. However, a few things could make it even better.", why:"It starts with praise before any criticism."},
+      {tip:4, text:"Firstly, there is not enough space to lock up bicycles outside the school. We would like to ask local businesses to help pay for some new bike racks.", why:"The first problem, plus what the writers would do about it."},
+      {tip:5, text:"Secondly, the bus stop on Mill Road has no shelter, so passengers get wet when it rains. We think a simple glass shelter would solve this problem.", why:"A further problem in its own paragraph, with a suggested solution."},
+      {tip:6, text:"We have also heard that a new skate park is being considered. Are young people being asked for their opinions? We hope so, because we would use it every weekend.", why:"The passive (‘Are young people being asked…?’) makes the question polite."},
+      {tip:7, text:"We look forward to hearing from you.", why:"A standard polite closing phrase."}
+    ],
+    signoff: "Yours faithfully,\nYear 8 students"
+  },
+
+  /* Activity 2: register selection. Choose the FORMAL option for every gap. */
+  register: [
+    {
+      title: "Letter A: to the town council (name unknown)",
+      scenario: "Your class has been asked to suggest improvements to the local sports centre. You are writing to the head of the town council.",
+      parts: [
+        {g:[["Dear Sir/Madam,","You don’t know the person’s name, so ‘Sir/Madam’ is the standard formal greeting."],["Hi there,","Too casual. ‘Hi’ is for friends, not for a formal letter."],["Hey council people,","Slang, and disrespectful. A formal letter needs a respectful greeting."]]},
+        {g:[["I am a student at Hillcrest School, and I am writing to suggest some improvements to our local sports centre.","Says who you are and why you are writing, in full formal sentences."],["I’m just a kid from Hillcrest and I wanna tell you about our sports centre.","‘Kid’, ‘wanna’ and ‘I’m just…’ are informal and make the writer sound unsure."],["Me and my mates go to Hillcrest and we reckon the sports centre needs sorting.","‘Me and my mates’, ‘reckon’ and ‘sorting’ are spoken, informal language."]]},
+        {g:[["The centre has excellent facilities, and many local people enjoy using it.","Starts positively, with formal vocabulary (‘excellent facilities’)."],["The centre’s pretty cool and loads of people like it.","‘Pretty cool’ and ‘loads of’ are informal."],["It’s well good and everybody’s always there, it’s brilliant!","‘Well good’, ‘brilliant!’ and the exclamation mark are informal."]]},
+        {g:[["However, the changing rooms are in poor condition. We would like to suggest that they be repainted and that the broken lockers be replaced.","‘However’, ‘We would like to suggest that…’ and the passive make the request polite and indirect."],["But the changing rooms are a total mess! You’ve got to fix the lockers and stuff.","‘A total mess!’, ‘You’ve got to’ and ‘stuff’ are blunt and informal."],["But the changing rooms are rubbish and you need to sort them out ASAP.","‘Rubbish’, ‘sort out’ and ‘ASAP’ are informal, and it sounds rude."]]},
+        {g:[["In addition, the car park is very crowded at weekends. It would be helpful if some cycle racks were installed.","‘In addition’ links the ideas; ‘It would be helpful if…’ is a polite suggestion."],["Also, the car park’s totally rammed at weekends. Just stick up some bike racks, yeah?","‘Totally rammed’, ‘stick up’ and ‘yeah?’ are spoken, informal language."],["Plus the car park’s heaps busy. Get some bike racks put in, it’s easy.","‘Plus’, ‘heaps’ and the command ‘Get…’ are informal and bossy."]]},
+        {g:[["Are any improvements being planned for next year?","The passive is a more polite way to ask a direct question."],["Are you guys planning any improvements next year?","‘You guys’ is informal, and the active ‘you’ question is more direct."],["So what are you gonna do about it next year?","‘Gonna’ and the blunt ‘what are you…?’ sound like a demand."]]},
+        {g:[["We look forward to hearing from you.","A standard, polite formal closing phrase."],["Can’t wait to hear back from you!","Friendly, but informal: contraction and exclamation mark."],["Get back to us soon, OK?","A command with ‘OK?’ is far too casual."]]},
+        {g:[["Yours faithfully,","You began with ‘Sir/Madam’, so you end with ‘Yours faithfully’."],["Cheers,","Informal. Fine for a friend, not for a formal letter."],["See ya,","Slang. Not suitable for a formal letter."]]},
+        {t:"Year 8 students"}
+      ]
+    },
+    {
+      title: "Letter B: to a named person (the head teacher)",
+      scenario: "Your class wants the school canteen improved. You are writing to your head teacher, Mr Okafor. Watch the ending: you know his name this time!",
+      parts: [
+        {g:[["Dear Mr Okafor,","You know his name, so use it with a title."],["Hi Mr O,","A nickname and ‘Hi’ are too casual for a formal letter."],["Hey Mr Okafor,","‘Hey’ is far too casual."]]},
+        {g:[["I am writing on behalf of Class 8B to ask whether the school canteen could be improved.","Introduces the writer and the purpose clearly and politely."],["We’re writing ’cause the canteen is pretty bad and we wanna talk about it.","‘’Cause’, ‘pretty bad’ and ‘wanna’ are informal."],["Our class reckons the canteen’s rubbish and someone has to fix it.","‘Reckons’, ‘rubbish’ and the demand ‘someone has to fix it’ are informal and blunt."]]},
+        {g:[["We appreciate that the canteen staff work very hard and are always friendly.","A positive opening in formal language."],["The dinner ladies are great and all that.","‘Dinner ladies’ and ‘and all that’ are informal."],["Fair play to the staff, they’re sound.","‘Fair play’ and ‘sound’ are slang."]]},
+        {g:[["Unfortunately, the queues are very long, so students often have little time to eat. We suggest that a second serving counter be opened.","‘Unfortunately’ is a polite way to raise a problem, and the passive gives a polite suggestion."],["The queues are mental, so we hardly get time to eat. Just open another counter, simple.","‘Mental’, ‘Just open…’ and ‘simple’ are informal and bossy."],["Everyone’s stuck in the queue forever. You need to get another counter open, no excuses.","‘Forever’, ‘no excuses’ and the command are rude and informal."]]},
+        {g:[["We would also like to propose that more vegetarian options be offered.","‘We would like to propose that…’ is a formal, polite suggestion."],["Also, can we get more veggie stuff? That’d be ace.","‘Veggie stuff’ and ‘ace’ are informal."],["And we want more veggie food too, obviously.","‘We want’ and ‘obviously’ sound demanding and rude."]]},
+        {g:[["Would it be possible to discuss these ideas at the next School Council meeting?","A polite, indirect question."],["Can we talk about this at the next meeting or what?","‘Or what?’ is informal and slightly rude."],["Any chance we can chat about it at the next meeting?","‘Any chance’ and ‘chat’ are casual."]]},
+        {g:[["Thank you for your time. We look forward to hearing from you.","Polite thanks and a formal closing phrase."],["Thanks a lot, hope to hear back soon!","Informal wording and an exclamation mark."],["Thanks loads, speak soon!","‘Loads’ and ‘speak soon’ are informal."]]},
+        {g:[["Yours sincerely,","You used his name (‘Dear Mr Okafor’), so you end with ‘Yours sincerely’."],["Yours faithfully,","Formal, but wrong here: ‘faithfully’ goes with ‘Dear Sir/Madam’."],["Cheers,","Informal. Not suitable for a formal letter."]]},
+        {t:"Class 8B"}
+      ]
+    }
+  ],
+
+  /* Activity 3: spot the informal sentences and fix them.
+     informal:true  -> fix is a list of options, first = correct
+     informal:false -> already formal, just give a short reason */
+  fix: {
+    scenario: "You want the town library to stay open later on weekdays. Here is a first draft written for a friend, not for the library manager.",
+    sentences: [
+      {informal:true, t:"Hi there,", fix:[["Dear Sir/Madam,","You don’t know the manager’s name."],["Dear Library Person,","Not a standard greeting. Use ‘Sir/Madam’ when you don’t know the name."],["Hello Sir/Madam!","Right idea, but ‘Hello’ and the exclamation mark are still too casual."]]},
+      {informal:true, t:"I’m writing ’cause the library closes way too early.", fix:[["I am writing to suggest that the library should stay open later.","Formal purpose statement, no contraction or slang."],["I’m writing to say the library’s hours are rubbish.","‘Rubbish’ and contractions are informal, and it sounds rude."],["I just wanted to say the library closes too early, OK?","‘Just wanted to say’ and ‘OK?’ are informal."]]},
+      {informal:false, t:"The staff are always helpful and the book collection is excellent.", why:"Already formal, and a positive point. Leave it."},
+      {informal:true, t:"It’s a pain that loads of us can’t get there before it shuts.", fix:[["Unfortunately, many students cannot visit before it closes at 4 p.m.","Formal vocabulary and a clear, polite statement of the problem."],["It’s annoying that lots of us can’t make it in time.","‘Annoying’ and the contractions are informal."],["Sadly, loads of students can’t get there before it shuts.","‘Loads’, ‘can’t’ and ‘shuts’ are informal."]]},
+      {informal:true, t:"Why don’t you just keep it open till 6, yeah?", fix:[["Could the library be kept open until 6 p.m. on weekdays?","The passive makes the question polite."],["Will you keep it open till 6 p.m.?","‘Till’ and the direct ‘you’ question are less polite."],["Keep it open till 6, please!","A command with an exclamation mark is too blunt, even with ‘please’."]]},
+      {informal:false, t:"We would be very grateful for your consideration.", why:"Already formal and polite. Leave it."},
+      {informal:true, t:"Thanks loads, bye for now!", fix:[["We look forward to hearing from you.","A standard formal closing phrase."],["Thank you, goodbye.","Too abrupt; it doesn’t invite a reply."],["Hope you’ll write back soon!","‘Hope you’ll’ and the exclamation mark are informal."]]},
+      {informal:true, t:"Cheers,", fix:[["Yours faithfully,","The letter began ‘Sir/Madam’, so use ‘faithfully’."],["Yours sincerely,","Formal, but ‘sincerely’ is for letters addressed to a named person."],["Best wishes, mate,","‘Mate’ is informal."]]}
+    ]
+  },
+
+  /* Activity 4: greetings and endings. First option in sal/sig is correct. */
+  sign: [
+    {who:"the head teacher, Mr Lee", sal:["Dear Mr Lee,","Dear Sir/Madam,","Hi Mr Lee,"], sig:["Yours sincerely,","Yours faithfully,","Cheers,"], hint:"You know his name: ‘Dear Mr Lee’ goes with ‘Yours sincerely’."},
+    {who:"the manager of the town swimming pool (name unknown)", sal:["Dear Sir/Madam,","Dear Mr Manager,","Hi there,"], sig:["Yours faithfully,","Yours sincerely,","See you!"], hint:"You don’t know the name: ‘Dear Sir/Madam’ goes with ‘Yours faithfully’."},
+    {who:"Ms Patel, the school librarian", sal:["Dear Ms Patel,","Dear Sir/Madam,","Hey Ms Patel,"], sig:["Yours sincerely,","Yours faithfully,","Later,"], hint:"A named person gets ‘Yours sincerely’."},
+    {who:"your cousin Sam (a friendly email)", sal:["Hi Sam,","Dear Sir/Madam,","Dear Mr Sam,"], sig:["See you soon,","Yours faithfully,","Yours sincerely,"], hint:"For a friend, use a friendly greeting and ending. Formal endings sound cold."},
+    {who:"the editor of a local newspaper (name unknown)", sal:["Dear Sir/Madam,","Dear Editor Person,","Hello,"], sig:["Yours faithfully,","Yours sincerely,","Thanks, bye,"], hint:"No name: ‘Sir/Madam’ and ‘Yours faithfully’."},
+    {who:"Dr Hughes, a school governor", sal:["Dear Dr Hughes,","Dear Sir/Madam,","Hi Dr Hughes,"], sig:["Yours sincerely,","Yours faithfully,","Best, mate,"], hint:"A titled person you can name gets ‘Dear Dr Hughes’ and ‘Yours sincerely’."},
+    {who:"Mrs Alvarez, the head of the town council", sal:["Dear Mrs Alvarez,","Dear Sir/Madam,","Hi Mrs Alvarez,"], sig:["Yours sincerely,","Yours faithfully,","Cheers,"], hint:"You have her name this time, so ‘Yours sincerely’."},
+    {who:"a company called GreenCycle (no named person)", sal:["Dear Sir/Madam,","Dear GreenCycle,","Hi GreenCycle team,"], sig:["Yours faithfully,","Yours sincerely,","Cheers,"], hint:"No named person: ‘Sir/Madam’ and ‘Yours faithfully’."}
+  ],
+
+  /* Activity 5: active question -> polite passive question.
+     opts: first = correct; extra: other wrong passive forms.
+     accept: all answers the typing mode will accept. */
+  polite: [
+    {direct:"Are you planning a new road?", ans:"Is a new road being planned?", wrong:["Are a new road being planned?","Is a new road planned you?"], accept:["Is a new road being planned?"]},
+    {direct:"Are you repairing the park benches?", ans:"Are the park benches being repaired?", wrong:["Is the park benches being repaired?","Are the park benches being repair?"], accept:["Are the park benches being repaired?"]},
+    {direct:"Are you building a new sports hall?", ans:"Is a new sports hall being built?", wrong:["Is a new sports hall being build?","Are a new sports hall being built?"], accept:["Is a new sports hall being built?"]},
+    {direct:"Are you including cycle lanes in the plans?", ans:"Are cycle lanes being included in the plans?", wrong:["Is cycle lanes being included in the plans?","Are cycle lanes being including in the plans?"], accept:["Are cycle lanes being included in the plans?"]},
+    {direct:"Are you cleaning the river?", ans:"Is the river being cleaned?", wrong:["Are the river being cleaned?","Is the river being clean?"], accept:["Is the river being cleaned?"]},
+    {direct:"Are you asking students for their opinions?", ans:"Are students being asked for their opinions?", wrong:["Is students being asked for their opinions?","Are students being ask for their opinions?"], accept:["Are students being asked for their opinions?"]},
+    {direct:"Are you replacing the street lights?", ans:"Are the street lights being replaced?", wrong:["Is the street lights being replaced?","Are the street lights being replacing?"], accept:["Are the street lights being replaced?"]}
+  ],
+
+  /* Activity 6a: put the sentences of one paragraph in order (list them in the correct order) */
+  build: {
+    chunks:[
+      "Another issue is the lack of bins near the bus station.",
+      "As a result, rubbish is often left on the pavement.",
+      "We would like to suggest that more bins be installed along Station Road.",
+      "We believe this would make the area cleaner and more pleasant for everyone."
+    ],
+    labels:["The problem","What it causes","What we would like to do","The benefit"],
+    draftTask:"Write a short formal letter (about 120 to 180 words) to the town council. Suggest two or three improvements to your local area. Use a new paragraph for each suggestion."
+  }
+};
+
+/* =====================================================================
+   ENGINE (no need to edit below this line)
+   ===================================================================== */
+function h(tag, props, ...kids){
+  const e=document.createElement(tag);
+  for(const k in (props||{})){
+    const v=props[k];
+    if(k==='class') e.className=v;
+    else if(k.startsWith('on')) e.addEventListener(k.slice(2),v);
+    else if(v===true) e.setAttribute(k,'');
+    else if(v!==false && v!=null) e.setAttribute(k,v);
+  }
+  kids.flat(Infinity).forEach(c=>{ if(c==null||c===false) return; e.append(c.nodeType?c:document.createTextNode(c)); });
+  return e;
+}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const say=m=>{const l=document.getElementById('live'); l.textContent=''; setTimeout(()=>l.textContent=m,30);};
+const norm=s=>s.toLowerCase().replace(/[’']/g,"").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+
+/* progress tracking */
+const progress={};
+const TABS=[];
+function setProgress(id,score,max,done){ progress[id]={score,max,done}; updateSummary(); const b=document.getElementById('badge-'+id); if(b) b.textContent=done?'✓':''; }
+function updateSummary(){
+  const box=document.getElementById('summary'); if(!box) return;
+  box.replaceChildren(...TABS.filter(t=>t.id!=='guide').map(t=>{
+    const p=progress[t.id]||{score:0,max:0,done:false};
+    const pct=p.max?Math.round(100*p.score/p.max):0;
+    return h('tr',null,
+      h('td',null,t.title),
+      h('td',null,h('div',{class:'prog',role:'img','aria-label':pct+' percent'},h('span',{style:'width:'+pct+'%'}))),
+      h('td',null,`${p.score} / ${p.max}`),
+      h('td',null,p.done?'✓ complete':'in progress'));
+  }));
+}
+
+/* ---------- Guide ---------- */
+function renderGuide(p){
+  p.append(
+    h('h2',null,'Start here'),
+    h('p',{class:'lead'},'Work through the tabs in order, or jump to any one. Feedback appears as you go, and your score is shown below.'),
+    h('div',{class:'card'},
+      h('h3',{style:'margin-top:0'},'The structure of a formal letter'),
+      h('ol',null,DATA.tips.map(t=>h('li',null,t.label)))
+    ),
+    h('div',{class:'card'},
+      h('h3',{style:'margin-top:0'},'Formal or informal?'),
+      h('table',null,
+        h('thead',null,h('tr',null,['Feature','Informal','Formal'].map(x=>h('th',null,x)))),
+        h('tbody',null,[
+          ['Greeting','Hi Sam,','Dear Sir/Madam, / Dear Mr Lee,'],
+          ['Vocabulary','kids, loads of, stuff, rubbish','students, many, problems, poor'],
+          ['Suggestions','Just fix it!','We would like to suggest that it be repaired.'],
+          ['Questions','Are you planning a new road?','Is a new road being planned?'],
+          ['Punctuation','!!, OK?, yeah?','Full stops and question marks only'],
+          ['Ending','Cheers, / See ya,','Yours faithfully, / Yours sincerely,']
+        ].map(r=>h('tr',null,r.map(c=>h('td',null,c)))))
+      ),
+      h('p',{class:'note',style:'margin-top:12px'},'Faithfully or sincerely? ‘Dear Sir/Madam’ ends with ‘Yours faithfully’. ‘Dear Mr Lee’ ends with ‘Yours sincerely’. Contractions (we’re, it’s) appear in some school letters, but the formal options in these activities avoid them, which is the safest habit.')
+    ),
+    h('div',{class:'card'},
+      h('h3',{style:'margin-top:0'},'Your progress'),
+      h('table',null,h('thead',null,h('tr',null,['Activity','','Score','Status'].map(x=>h('th',null,x)))),h('tbody',{id:'summary'})),
+      h('div',{class:'bar'},h('button',{class:'btn alt',type:'button',onclick:()=>{ if(confirm('Start everything again?')) location.reload(); }},'Start again'))
+    )
+  );
+}
+
+/* ---------- 1 Parts of a letter ---------- */
+function renderParts(p){
+  const L=DATA.parts.letter, state=L.map(()=>({tries:0,solved:false}));
+  p.append(h('h2',null,'1 · Parts of a letter'),
+    h('p',{class:'lead'},'Each paragraph of this model letter follows one of the writing tips.'),
+    h('div',{class:'task'},h('strong',null,'Your task'),'For each paragraph, choose the tip it follows, then press Check.'));
+  const rows=L.map((para,i)=>{
+    const sel=h('select',{'aria-label':`Paragraph ${i+1}: which tip does it follow?`},
+      h('option',{value:''},'Choose a tip…'),
+      DATA.tips.map(t=>h('option',{value:t.id},`${t.id}. ${t.label}`)));
+    const fb=h('div',{class:'fb',role:'status'});
+    return {sel,fb,para,row:h('div',{class:'row'},h('p',{class:'para'},para.text),h('div',null,sel,fb))};
+  });
+  const letter=h('div',{class:'letter'},rows.map(r=>r.row),h('p',{style:'white-space:pre-line;margin-top:14px'},DATA.parts.signoff));
+  p.append(letter);
+  function update(){
+    let s=0,d=0; state.forEach(x=>{ if(x.solved){d++; if(x.tries===1) s++;} });
+    setProgress('parts',s,L.length,d===L.length);
+    if(d===L.length) say('All paragraphs matched.');
+  }
+  const check=h('button',{class:'btn',type:'button',onclick:()=>{
+    rows.forEach((r,i)=>{
+      const st=state[i]; if(st.solved) return;
+      const v=r.sel.value;
+      if(!v){ r.fb.className='fb'; r.fb.textContent='Choose a tip first.'; return; }
+      st.tries++;
+      if(+v===r.para.tip){ st.solved=true; r.sel.disabled=true; r.fb.className='fb ok'; r.fb.textContent='✓ '+r.para.why; }
+      else if(st.tries>=2){ st.solved=true; r.sel.value=r.para.tip; r.sel.disabled=true; r.fb.className='fb bad'; r.fb.textContent='The answer is tip '+r.para.tip+'. '+r.para.why; }
+      else { r.fb.className='fb bad'; r.fb.textContent='✗ Not quite. What is this paragraph doing? Try again.'; }
+    });
+    update();
+  }},'Check');
+  p.append(h('div',{class:'bar'},check));
+  setProgress('parts',0,L.length,false);
+}
+
+/* ---------- 2 Register ---------- */
+function makeGap(opts,onSolved){
+  let tries=0;
+  const fb=h('div',{class:'fb bad',role:'status'});
+  const order=shuffle(opts.map((o,i)=>({t:o[0],why:o[1],ok:i===0})));
+  const box=h('div',{class:'gap'},h('p',{class:'prompt'},'Choose the formal option'),
+    h('div',{class:'choices'},order.map(o=>{
+      const b=h('button',{type:'button',class:'choice'},o.t);
+      b.addEventListener('click',()=>{
+        if(o.ok){
+          const solved=h('div',{class:'gap solved'},h('p',{class:'st'},o.t),h('p',{class:'why'},'✓ '+o.why));
+          box.replaceWith(solved); say('Correct. '+o.why); onSolved(tries===0);
+        } else {
+          tries++; b.disabled=true; b.classList.add('wrong'); fb.textContent='✗ '+o.why; say('Not formal. '+o.why);
+        }
+      });
+      return b;
+    })),fb);
+  return box;
+}
+function renderRegister(p){
+  const letters=DATA.register;
+  const st=letters.map(l=>({first:0,solved:0,total:l.parts.filter(x=>x.g).length}));
+  const totalGaps=st.reduce((a,x)=>a+x.total,0);
+  function update(){
+    const s=st.reduce((a,x)=>a+x.first,0), d=st.reduce((a,x)=>a+x.solved,0);
+    setProgress('register',s,totalGaps,d===totalGaps);
+  }
+  p.append(h('h2',null,'2 · Choose the register'),
+    h('p',{class:'lead'},'Complete each letter by choosing the formal option for every gap.'));
+  let current=0;
+  const body=h('div');
+  const seg=h('div',{class:'seg',role:'group','aria-label':'Choose a letter'},letters.map((l,i)=>{
+    const b=h('button',{type:'button','aria-pressed':i===0?'true':'false'},'Letter '+String.fromCharCode(65+i));
+    b.addEventListener('click',()=>{ current=i; [...seg.children].forEach((x,j)=>x.setAttribute('aria-pressed',j===i?'true':'false')); draw(); });
+    return b;
+  }));
+  p.append(h('div',{class:'bar'},seg),body);
+  function draw(){
+    const i=current, L=letters[i], s=st[i];
+    const counter=h('span',{class:'counter'},`${s.solved} of ${s.total} gaps completed`);
+    const done=h('p',{class:'note',hidden:true},'Well done! Read the whole letter aloud. Does it sound polite from start to finish?');
+    const letter=h('div',{class:'letter'});
+    L.parts.forEach(part=>{
+      if(part.t) letter.append(h('p',null,part.t));
+      else letter.append(makeGap(part.g,first=>{
+        s.solved++; if(first) s.first++;
+        counter.textContent=`${s.solved} of ${s.total} gaps completed`;
+        if(s.solved===s.total) done.hidden=false;
+        update();
+      }));
+    });
+    if(s.solved===s.total && s.total>0) done.hidden=false;
+    const reset=h('button',{class:'btn alt',type:'button',onclick:()=>{ s.first=0; s.solved=0; update(); draw(); }},'Try this letter again');
+    body.replaceChildren(
+      h('div',{class:'task'},h('strong',null,L.title),L.scenario),
+      h('div',{class:'bar'},reset,counter),letter,done);
+  }
+  draw(); update();
+}
+
+/* ---------- 3 Spot and fix ---------- */
+function renderFix(p){
+  const D=DATA.fix, S=D.sentences, need=S.filter(x=>x.informal).length;
+  let fixed=0, first=0, slips=0;
+  p.append(h('h2',null,'3 · Spot and fix'),
+    h('p',{class:'lead'},D.scenario),
+    h('div',{class:'task'},h('strong',null,'Your task'),'Click each sentence that sounds too informal, then choose the best formal replacement. Some sentences are already fine.'));
+  const counter=h('span',{class:'counter'},`Fixed 0 of ${need}`);
+  const letter=h('div',{class:'letter'});
+  p.append(h('div',{class:'bar'},counter),letter);
+  function update(){ counter.textContent=`Fixed ${fixed} of ${need}`+(slips?` · ${slips} sentence${slips>1?'s':''} that were already fine`:''); setProgress('fix',first,need,fixed===need); }
+  S.forEach(s=>{
+    const wrap=h('div'); const btn=h('button',{type:'button',class:'sent'},s.t); const slot=h('div');
+    let tries=0, open=false, finished=false;
+    btn.addEventListener('click',()=>{
+      if(finished) return;
+      if(!s.informal){
+        if(!btn.classList.contains('fine')){ btn.classList.add('fine'); slips++; update(); }
+        slot.replaceChildren(h('div',{class:'fb ok',role:'status'},'✓ '+s.why)); say(s.why); return;
+      }
+      open=!open;
+      if(!open){ slot.replaceChildren(); return; }
+      const fb=h('div',{class:'fb bad',role:'status'});
+      const order=shuffle(s.fix.map((o,i)=>({t:o[0],why:o[1],ok:i===0})));
+      slot.replaceChildren(h('div',{class:'panel'},h('p',{class:'prompt',style:'margin:0 0 6px;font-size:.9rem'},'Choose the best formal replacement'),
+        h('div',{class:'choices'},order.map(o=>{
+          const b=h('button',{type:'button',class:'choice'},o.t);
+          b.addEventListener('click',()=>{
+            if(o.ok){
+              finished=true; btn.textContent=o.t; btn.classList.add('fixed'); btn.disabled=true;
+              slot.replaceChildren(h('div',{class:'fb ok',role:'status'},'✓ '+o.why));
+              fixed++; if(tries===0) first++; update(); say('Fixed. '+o.why);
+            } else { tries++; b.disabled=true; b.classList.add('wrong'); fb.textContent='✗ '+o.why; say(o.why); }
+          });
+          return b;
+        })),fb));
+    });
+    wrap.append(btn,slot); letter.append(wrap);
+  });
+  update();
+}
+
+/* ---------- 4 Greetings & endings ---------- */
+function renderSign(p){
+  const items=DATA.sign;
+  const st=items.map(()=>({sal:null,sig:null,tries:0,done:false}));
+  p.append(h('h2',null,'4 · Greetings and endings'),
+    h('p',{class:'lead'},'The greeting decides the ending. Pick both for each letter.'),
+    h('div',{class:'task'},h('strong',null,'Your task'),'For each person, choose the correct greeting and the matching ending.'));
+  function update(){
+    const s=st.filter(x=>x.done&&x.tries===1).length, d=st.filter(x=>x.done).length;
+    setProgress('sign',s,items.length,d===items.length);
+  }
+  shuffle(items.map((it,i)=>i)).forEach(i=>{
+    const it=items[i], s=st[i];
+    const fb=h('div',{class:'fb',role:'status'});
+    const card=h('div',{class:'card sc'},h('h4',null,'You are writing to '+it.who+'.'));
+    const group=(kind,label)=>{
+      const opts=shuffle(it[kind].map((t,j)=>({t,ok:j===0})));
+      const col=h('div',null,h('p',{class:'lbl'},label));
+      opts.forEach(o=>{
+        const b=h('button',{type:'button',class:'opt','aria-pressed':'false'},o.t);
+        b.addEventListener('click',()=>{
+          if(s.done) return;
+          [...col.querySelectorAll('.opt')].forEach(x=>x.setAttribute('aria-pressed','false'));
+          b.setAttribute('aria-pressed','true'); s[kind]=o; evaluate();
+        });
+        col.append(b);
+      });
+      return col;
+    };
+    function evaluate(){
+      if(!s.sal||!s.sig) return;
+      s.tries++;
+      if(s.sal.ok&&s.sig.ok){
+        s.done=true; card.classList.add('done'); card.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='fb ok'; fb.textContent='✓ '+it.hint; say('Correct. '+it.hint); update();
+      } else {
+        const what=!s.sal.ok&&!s.sig.ok?'The greeting and the ending are':!s.sal.ok?'The greeting is':'The ending is';
+        fb.className='fb bad'; fb.textContent=`✗ ${what} not right yet. Hint: ${it.hint}`; say(what+' not right yet.');
+      }
+    }
+    card.append(h('div',{class:'cols'},group('sal','Greeting'),group('sig','Ending')),fb);
+    p.append(card);
+  });
+  setProgress('sign',0,items.length,false);
+}
+
+/* ---------- 5 Make it polite ---------- */
+function renderPolite(p){
+  const items=DATA.polite;
+  let mode='choose', st;
+  p.append(h('h2',null,'5 · Make it polite'),
+    h('p',{class:'lead'},'A direct question can sound blunt. The passive (is/are + being + past participle) sounds more polite.'),
+    h('div',{class:'task'},h('strong',null,'Your task'),'Rewrite each direct question as a polite passive question. Pattern: Are you repairing the road? → Is the road being repaired?'));
+  const seg=h('div',{class:'seg',role:'group','aria-label':'Mode'},
+    [['choose','Choose the answer'],['type','Type the answer']].map(([m,l])=>{
+      const b=h('button',{type:'button','aria-pressed':m===mode?'true':'false'},l);
+      b.addEventListener('click',()=>{ mode=m; [...seg.children].forEach((x,j)=>x.setAttribute('aria-pressed',x===b?'true':'false')); draw(); });
+      return b;
+    }));
+  const hintNote=h('span',{class:'counter'},'Switching mode restarts this activity.');
+  const list=h('div');
+  p.append(h('div',{class:'bar'},seg,hintNote),list);
+  function update(){
+    const s=st.filter(x=>x.done&&x.tries===1).length, d=st.filter(x=>x.done).length;
+    setProgress('polite',s,items.length,d===items.length);
+  }
+  function draw(){
+    st=items.map(()=>({tries:0,done:false}));
+    list.replaceChildren(...items.map((it,i)=>{
+      const s=st[i];
+      const fb=h('div',{class:'fb',role:'status'});
+      const card=h('div',{class:'card'},
+        h('p',{style:'margin:0 0 8px'},h('strong',null,'Too direct: '),it.direct));
+      const finish=(msg)=>{ s.done=true; card.style.borderColor='var(--ok)'; fb.className='fb ok'; fb.textContent=msg; update(); say(msg); };
+      if(mode==='choose'){
+        const order=shuffle([it.ans,...it.wrong].map((t,j)=>({t,ok:j===0})));
+        card.append(h('div',{class:'choices'},order.map(o=>{
+          const b=h('button',{type:'button',class:'choice'},o.t);
+          b.addEventListener('click',()=>{
+            if(s.done) return;
+            if(o.ok){ card.querySelectorAll('.choice').forEach(x=>{ if(x!==b) x.disabled=true; }); b.style.borderColor='var(--ok)'; finish('✓ Polite and correct.'); }
+            else { s.tries++; b.disabled=true; b.classList.add('wrong'); fb.className='fb bad'; fb.textContent='✗ Check the verb agreement (is/are) and the past participle.'; }
+          });
+          return b;
+        })));
+      } else {
+        const input=h('input',{type:'text','aria-label':'Your polite question for: '+it.direct,autocomplete:'off',spellcheck:'false'});
+        const go=()=>{
+          if(s.done) return;
+          const v=norm(input.value); if(!v) return;
+          if(it.accept.some(a=>norm(a)===v)){ input.disabled=true; finish('✓ '+it.ans); }
+          else {
+            s.tries++; fb.className='fb bad';
+            fb.textContent = s.tries===1 ? '✗ Not yet. Hint: start with Is/Are, then the thing, then ‘being’ + past participle.' : '✗ Still not right. Look at is/are, ‘being’ and the verb ending.';
+            if(s.tries>=3 && !card.querySelector('.show')){
+              card.append(h('button',{type:'button',class:'btn alt show',style:'margin-top:8px',onclick:()=>{ input.value=it.ans; input.disabled=true; s.done=true; card.style.borderColor='var(--ok)'; fb.className='fb ok'; fb.textContent='Answer: '+it.ans; update(); }},'Show the answer'));
+            }
+          }
+        };
+        input.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+        card.append(h('div',{class:'bar',style:'margin:0'},input,h('button',{type:'button',class:'btn',onclick:go},'Check')));
+      }
+      card.append(fb);
+      return card;
+    }));
+    update();
+  }
+  draw();
+}
+
+/* ---------- 6 Build and check ---------- */
+function renderBuild(p){
+  const D=DATA.build, n=D.chunks.length;
+  let orderedDone=false, orderedFirst=false, tries=0, scanned=false;
+  function update(){
+    const s=(orderedDone&&orderedFirst?1:0)+(scanned?1:0);
+    setProgress('build',s,2,orderedDone&&scanned);
+  }
+  p.append(h('h2',null,'6 · Build and check'),
+    h('p',{class:'lead'},'First build a paragraph, then write and check your own letter.'));
+
+  /* Part A */
+  const pool=h('div',{class:'chunks','aria-label':'Sentences to place'});
+  const ordered=h('div',{class:'ordered','aria-label':'Your paragraph'});
+  const fbA=h('div',{class:'fb',role:'status'});
+  const items=shuffle(D.chunks.map((t,i)=>({t,i})));
+  const mk=(it)=>{ const b=h('button',{type:'button',class:'chunk'},it.t); b.dataset.i=it.i; return b; };
+  items.forEach(it=>{ const b=mk(it); pool.append(b); });
+  function wire(){
+    [...pool.children,...ordered.children].forEach(b=>{
+      b.onclick=()=>{ if(orderedDone) return; (b.parentNode===pool?ordered:pool).append(b); fbA.textContent=''; };
+    });
+  }
+  const obs=new MutationObserver(wire); obs.observe(pool,{childList:true}); obs.observe(ordered,{childList:true}); wire();
+  const checkA=h('button',{class:'btn',type:'button',onclick:()=>{
+    if(orderedDone) return;
+    const got=[...ordered.children].map(b=>+b.dataset.i);
+    if(got.length<n){ fbA.className='fb bad'; fbA.textContent='Place all '+n+' sentences first.'; return; }
+    tries++;
+    if(got.every((v,k)=>v===k)){ orderedDone=true; orderedFirst=tries===1; fbA.className='fb ok'; fbA.textContent='✓ Problem → result → what we would like to do → benefit. A clear, persuasive paragraph.'; say('Paragraph correct.'); update(); }
+    else { fbA.className='fb bad'; fbA.textContent='✗ Not quite. Think: what is the problem, what does it cause, what would you do, and why is that good?'; }
+  }},'Check order');
+  p.append(h('div',{class:'card'},
+    h('h3',{style:'margin-top:0'},'A · Build a paragraph'),
+    h('p',{class:'lead',style:'margin-bottom:8px'},'Click the sentences in the right order. Click a placed sentence to send it back.'),
+    h('p',{style:'margin:6px 0 4px;font-size:.85rem;color:var(--muted)'},'Sentences'),pool,
+    h('p',{style:'margin:10px 0 4px;font-size:.85rem;color:var(--muted)'},'Your paragraph'),ordered,
+    h('div',{class:'bar'},checkA),fbA));
+
+  /* Part B */
+  const ta=h('textarea',{'aria-label':'Your letter',placeholder:'Dear …'});
+  const wc=h('span',{class:'counter'},'0 words');
+  ta.addEventListener('input',()=>{ const w=ta.value.trim()?ta.value.trim().split(/\s+/).length:0; wc.textContent=w+' words'; });
+  const out=h('div',{class:'scan',role:'status'});
+  const scan=()=>{
+    const t=ta.value.trim(), res=[];
+    const add=(c,m)=>res.push(h('li',{class:c},(c==='ok'?'✓ ':c==='bad'?'✗ ':'! ')+m));
+    if(t.split(/\s+/).filter(Boolean).length<40){ out.replaceChildren(h('p',{class:'note'},'Write a bit more first (at least 40 words), then scan.')); return; }
+    const greet=/^\s*dear\s+(sir\/madam|sir or madam|(mr|mrs|ms|miss|dr)\.?\s+\w+)/i.exec(t);
+    greet?add('ok','Formal greeting found.'):add('bad','Start with ‘Dear Sir/Madam,’ or ‘Dear Mr/Ms Name,’.');
+    const faith=/yours\s+faithfully/i.test(t), sinc=/yours\s+sincerely/i.test(t);
+    if(greet){
+      const unnamed=/sir\/madam|sir or madam/i.test(greet[0]);
+      if(unnamed&&faith) add('ok','‘Sir/Madam’ with ‘Yours faithfully’: a matching pair.');
+      else if(!unnamed&&sinc) add('ok','Named person with ‘Yours sincerely’: a matching pair.');
+      else if(faith||sinc) add('bad','Your greeting and ending don’t match (Sir/Madam → faithfully; a name → sincerely).');
+      else add('bad','Add a formal ending: ‘Yours faithfully,’ or ‘Yours sincerely,’.');
+    } else if(!faith&&!sinc) add('bad','Add a formal ending: ‘Yours faithfully,’ or ‘Yours sincerely,’.');
+    /look forward to hearing from you/i.test(t)?add('ok','Polite closing phrase found.'):add('warn','Try ending with ‘We look forward to hearing from you.’');
+    /\b(i am|we are|i'm|we're|i’m|we’re)\b[^.]*\b(writing|students?|year)\b/i.test(t)?add('ok','You seem to introduce yourself and your purpose.'):add('warn','Introduce yourself and say why you are writing.');
+    /\b(is|are)\b[^.?!]*\bbeing\b[^.?!]*\?/i.test(t)?add('ok','A polite passive question found.'):add('warn','Add a polite passive question, e.g. ‘Is a new road being planned?’');
+    const paras=t.split(/\n\s*\n/).filter(x=>x.trim()).length;
+    paras>=4?add('ok',paras+' paragraphs: easy to follow.'):add('warn','Only '+paras+' paragraph'+(paras===1?'':'s')+'. Use a new paragraph (blank line) for each suggestion.');
+    const slang=[...new Set((t.match(/\b(gonna|wanna|gotta|cheers|hey|hi|mate|loads|yeah|yep|nope|ok|okay|cos|lol|ace|awesome|stuff|kinda|sorta|rubbish|guys|kids)\b|’cause|'cause/gi)||[]).map(x=>x.toLowerCase()))];
+    slang.length?add('bad','Informal words to replace: '+slang.join(', ')+'.'):add('ok','No obvious slang found.');
+    const ex=(t.match(/!/g)||[]).length; ex?add('warn',ex+' exclamation mark'+(ex>1?'s':'')+'. Formal letters rarely use them.'):add('ok','No exclamation marks.');
+    const con=(t.match(/\b\w+(n['’]t|['’](re|ve|ll|d|m|s))\b/gi)||[]).filter(x=>!/^(the|this|that)$/i.test(x));
+    con.length?add('warn',con.length+' contraction'+(con.length>1?'s':'')+' ('+[...new Set(con.map(x=>x.toLowerCase()))].slice(0,5).join(', ')+'). Consider writing them in full.'):add('ok','No contractions.');
+    out.replaceChildren(h('ul',null,res),h('p',{style:'font-size:.88rem;color:var(--muted)'},'This scan only spots patterns. It cannot judge whether your ideas are good, so use the checklist below too.'));
+    scanned=true; update();
+  };
+  const checklist=['I introduced myself and said why I was writing.','I started with something positive.','Each suggestion is in a separate paragraph, with a solution.','I asked at least one question politely, using the passive.','I used a polite closing phrase.','My greeting and ending match (Sir/Madam → faithfully; a name → sincerely).','I removed slang, exclamation marks and informal phrases.','I checked spelling, grammar and punctuation.'];
+  const tickCount=h('span',{class:'counter'},'0 of '+checklist.length+' ticked');
+  const cl=h('div',{class:'check'},checklist.map(c=>{
+    const cb=h('input',{type:'checkbox'});
+    cb.addEventListener('change',()=>{ tickCount.textContent=cl.querySelectorAll('input:checked').length+' of '+checklist.length+' ticked'; });
+    return h('label',null,cb,h('span',null,c));
+  }));
+  p.append(h('div',{class:'card'},
+    h('h3',{style:'margin-top:0'},'B · Write and check your own letter'),
+    h('div',{class:'task'},h('strong',null,'Your task'),D.draftTask),
+    ta,h('div',{class:'bar'},h('button',{class:'btn',type:'button',onclick:scan},'Quick scan'),wc),out,
+    h('h3',null,'Final checklist'),cl,h('div',{class:'bar'},tickCount)));
+  update();
+}
+
+/* ---------- Tabs ---------- */
+TABS.push(
+  {id:'guide',title:'Start here',render:renderGuide},
+  {id:'parts',title:'1 · Parts of a letter',render:renderParts},
+  {id:'register',title:'2 · Choose the register',render:renderRegister},
+  {id:'fix',title:'3 · Spot and fix',render:renderFix},
+  {id:'sign',title:'4 · Greetings and endings',render:renderSign},
+  {id:'polite',title:'5 · Make it polite',render:renderPolite},
+  {id:'build',title:'6 · Build and check',render:renderBuild}
+);
+const tablist=document.getElementById('tabs'), main=document.getElementById('main');
+const tabEls={}, panelEls={};
+TABS.forEach(t=>{
+  const tab=h('button',{role:'tab',id:'tab-'+t.id,'aria-controls':'panel-'+t.id,'aria-selected':'false',tabindex:'-1',type:'button'},t.title,h('span',{class:'badge',id:'badge-'+t.id,'aria-hidden':'true'}));
+  tab.addEventListener('click',()=>select(t.id,true));
+  tab.addEventListener('keydown',e=>{
+    const i=TABS.findIndex(x=>x.id===t.id); let n=null;
+    if(e.key==='ArrowRight') n=(i+1)%TABS.length; else if(e.key==='ArrowLeft') n=(i-1+TABS.length)%TABS.length;
+    else if(e.key==='Home') n=0; else if(e.key==='End') n=TABS.length-1;
+    if(n!==null){ e.preventDefault(); select(TABS[n].id,true); tabEls[TABS[n].id].focus(); }
+  });
+  tablist.append(tab); tabEls[t.id]=tab;
+  const panel=h('section',{role:'tabpanel',id:'panel-'+t.id,'aria-labelledby':'tab-'+t.id,hidden:true,tabindex:'0'});
+  main.append(panel); panelEls[t.id]=panel;
+});
+TABS.forEach(t=>t.render(panelEls[t.id]));
+updateSummary();
+function select(id,push){
+  TABS.forEach(t=>{
+    const on=t.id===id;
+    tabEls[t.id].setAttribute('aria-selected',on?'true':'false');
+    tabEls[t.id].tabIndex=on?0:-1;
+    panelEls[t.id].hidden=!on;
+  });
+  tabEls[id].scrollIntoView({block:'nearest',inline:'center'});
+  if(push){ try{ history.replaceState(null,'','#'+id); }catch(e){} }
+  window.scrollTo({top:0});
+}
+select(TABS.some(t=>t.id===location.hash.slice(1))?location.hash.slice(1):'guide',false);
+</script>
+</body>
+</html>
